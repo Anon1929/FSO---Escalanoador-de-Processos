@@ -1,8 +1,12 @@
+rapido
+rapido
 normal
-rapido
-normal
-rapido
-rapido
 lento
 rapido
 rapido
+normal
+lento
+rapido
+rapido
+normal
+lento

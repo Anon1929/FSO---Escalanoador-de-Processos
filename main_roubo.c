@@ -15,6 +15,7 @@ typedef struct queue{
     int begin;
     int fila[99];
     bool exists;
+    bool fantasma;
 }Queue;
 
 enum speed{
@@ -32,6 +33,7 @@ int main(){
         child_filas[i].size=0;
         child_filas[i].begin=0;
         child_filas[i].exists=false;
+        child_filas[i].fantasma=false;
     }
 
     FILE *file;
@@ -71,17 +73,14 @@ int main(){
     }
     printf("\n");
     int status;
-    
     int initial_count = count;
-    // timer start
     struct timeval begin, end;
     gettimeofday(&begin, 0);
 
     while(count>0){
         for(int i=0;i<4;i++){
-            if(child_filas[i].exists == false  && child_filas[i].size != 0){
+            if(child_filas[i].exists == false && child_filas[i].size != 0){
                 child_filas[i].exists = true;
-                // if(count == initial_count){t = clock();};
                 pid = fork();
                 if(pid == 0){
                     switch(child_filas[i].fila[child_filas[i].begin]){
@@ -111,19 +110,34 @@ int main(){
                 child_filas[i].begin++;
                 child_filas[i].size--;
                 count--;
+                if(child_filas[i].size == 0){
+                    if (!child_filas[i].fantasma) {
+                        child_filas[i].fantasma = true;
+                        printf("Proc %d iniciou o modo roubo de processos\n", i);
+                    }
+                    for (int j = 0; j < 4; j++) {
+                        if (child_filas[j].size > 1 && !child_filas[j].fantasma) {
+                            child_filas[i].size++;
+                            child_filas[i].fila[child_filas[i].size] = child_filas[j].fila[child_filas[j].size];
+                            child_filas[i].begin = child_filas[i].size;
+                            child_filas[j].size--;
+                            printf("Proc %d roubou do processo %d\n", i, j);
+                            break;
+                        }
+                    }
+                }
+
                 break;
             }
         }
 
     }
-    
-    
+
     // timer end
     gettimeofday(&end, 0);
     long seconds = end.tv_sec - begin.tv_sec;
     long microseconds = end.tv_usec - begin.tv_usec;
     double elapsed = seconds + microseconds*1e-6;
-
     printf("Turnarround time: %.3f segundos.\n", elapsed);
     
 }
