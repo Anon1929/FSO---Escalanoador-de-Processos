@@ -20,5 +20,5 @@ int main() {
 
     int pid = getpid();
     
-    printf("Processo PID [%d] terminou a execução em %.3f segundos.\n", pid, elapsed);
+    printf("Processo PID [%d]: terminou a execução em %.3f segundos.\n", pid, elapsed);
 }

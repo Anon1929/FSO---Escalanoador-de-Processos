@@ -47,12 +47,8 @@ int main()
     {
         int len = strlen(line);
         enum speed vel = 0;
-
         if (len > 0 && line[len - 1] == '\n')
-        {
             line[len - 1] = 0;
-        }
-            
         if (strcmp(line, "normal") == 0)
         {
             vel = normal;
@@ -86,7 +82,6 @@ int main()
 
     for (int i = 0; i < 4; i++)
     {
-        int fantasma = 0;
         pid = fork();
         if (pid == 0)
         {
@@ -94,38 +89,17 @@ int main()
             while (true)
             {
                 mensagem msg;
-                if (!fantasma) {
-                    msg.tipo = i + 1;
-                    if (msgrcv(msg_id, &msg, sizeof(msg.msg), i + 1, IPC_NOWAIT) == -1)
-                    {
-                        printf("Auxiliar %d inicou o modo roubo de processo\n", i);
-                        fantasma = 1;
-                        continue;
-                    }
-                } else {
-                    for (int j = 0; j < 4; j++) {
-                        msg.tipo = j + 1;
-                        if (msgrcv(msg_id, &msg, sizeof(msg.msg), j + 1, IPC_NOWAIT) == -1)
-                        {
-                            if (j == 3) 
-                            {
-                                printf("Auxiliar %d terminou a execução\n", i);
-                                exit(1);
-                            }
-                            
-                        } else 
-                        {
-                            printf("Auxiliar %d roubou do auxiliar %d\n", i, j);
-                            break;
-                        }
-                            
-                    }
+                msg.tipo = i + 1;
+                if (msgrcv(msg_id, &msg, sizeof(msg.msg), i + 1, IPC_NOWAIT) == -1)
+                {
+                    printf("Auxiliar %d terminou\n", i);
+                    exit(1);
                 }
-                
                 int processVel = (int)msg.msg[0];
-                int pidProg = fork();  
+                int pidProg = fork();
                 if (pidProg == 0)
                 {
+                    // switch
                     switch (processVel)
                     {
                     case lento:
@@ -142,7 +116,7 @@ int main()
                         break;
                     }
                 }
-                wait(&status);             
+                wait(&status);
             }
         }
     }
