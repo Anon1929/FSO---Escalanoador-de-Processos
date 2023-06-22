@@ -64,7 +64,8 @@ int main()
 
         // mandar mensagem
         mensagem msg;
-        msg.tipo = (long)(count % 4 + 1);
+        long type = (long)((count % 4) + 1);
+        msg.tipo = type;
         msg.msg[0] = vel;
         printf("Fila %ld recebe processo %s\n", msg.tipo, line);
         if (msgsnd(msg_id, &msg, sizeof(msg.msg), IPC_NOWAIT) == -1)
@@ -75,7 +76,6 @@ int main()
 
         count++;
     }
-
     // timer start
     struct timeval begin, end;
     gettimeofday(&begin, 0);
@@ -88,9 +88,10 @@ int main()
             printf("Auxiliar %d criado\n", i);
             while (true)
             {
+                long type = (long)(i + 1);
                 mensagem msg;
-                msg.tipo = i + 1;
-                if (msgrcv(msg_id, &msg, sizeof(msg.msg), i + 1, IPC_NOWAIT) == -1)
+                msg.tipo = type;
+                if (msgrcv(msg_id, &msg, sizeof(msg.msg), type, IPC_NOWAIT) == -1)
                 {
                     printf("Auxiliar %d terminou\n", i);
                     exit(1);
@@ -114,7 +115,11 @@ int main()
                         printf("Auxiliar %d - PID [%d]: executando rapido\n", i, getpid());
                         execl("rapido", "rapido", (char *)NULL);
                         break;
+                    default:
+                        printf("proccessVel Invalido\n");
+                        break;
                     }
+                    exit(1);
                 }
                 wait(&status);
             }
