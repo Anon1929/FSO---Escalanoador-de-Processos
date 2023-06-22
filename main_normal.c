@@ -64,7 +64,7 @@ int main()
 
         // mandar mensagem
         mensagem msg;
-        long type = (long)((count % 4) + 1);
+        long type = (long)((count % 4) + 1) * 100l;
         msg.tipo = type;
         msg.msg[0] = vel;
         printf("Fila %ld recebe processo %s\n", msg.tipo, line);
@@ -88,7 +88,7 @@ int main()
             printf("Auxiliar %d criado\n", i);
             while (true)
             {
-                long type = (long)(i + 1);
+                long type = (long)(i + 1) * 100l;
                 mensagem msg;
                 msg.tipo = type;
                 if (msgrcv(msg_id, &msg, sizeof(msg.msg), type, IPC_NOWAIT) == -1)
