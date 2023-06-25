@@ -141,8 +141,8 @@ int main()
                             }
                         }
                         else
-                        {
-                            printf("Auxiliar %d roubou do auxiliar %d\n", i, j);
+                        {   
+                            printf("Auxiliar %d roubou do auxiliar %d\n", i, type/100 -1);
                             break;
                         }
                     }
