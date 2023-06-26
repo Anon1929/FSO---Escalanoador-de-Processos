@@ -24,7 +24,9 @@ typedef struct
     char msg[1];
 } mensagem;
 
-long getType(long i)
+struct msqid_ds *buf;
+
+long getType(int i)
 {
     return (long)((i % 4) + 1) * 100l;
 }
@@ -34,23 +36,29 @@ int randInt(int min, int max)
     return min + rand() % (max - min + 1);
 }
 
-int main()
+int main(int argc, char **argv)
 {
+    if (argc != 2) {
+        printf("Número de argumentos incorreto\n");
+        exit(1);
+    }
+
     int msg_id, pid, status, count = 0;
     FILE *file;
     char line[100];
 
     // Criar fila de mensagens
-    if (msg_id = msgget(0x1223, IPC_CREAT | 0666) == -1)
+    if ((msg_id = msgget(0x006401, IPC_CREAT | 0666)) == -1)
     {
         perror("msgget");
         exit(1);
     }
 
-    file = fopen("teste.txt", "r");
+    file = fopen(argv[1], "r");
     if (file == NULL)
     {
         printf("Failed to open the file.\n");
+        exit(1);
     }
 
     while (fgets(line, sizeof(line), file) != NULL)
@@ -78,10 +86,10 @@ int main()
 
         // mandar mensagem
         mensagem msg;
-        long type = getType(count % 4);
+        long type = getType(count);
         msg.tipo = type;
         msg.msg[0] = vel;
-        printf("Fila %ld recebe processo %s\n", msg.tipo, line);
+        printf("Fila %ld recebe processo %s - %d\n", msg.tipo, line, vel);
         if (msgsnd(msg_id, &msg, sizeof(msg.msg), IPC_NOWAIT) == -1)
         {
             perror("Error sending message to queue");
@@ -142,7 +150,7 @@ int main()
                         }
                         else
                         {   
-                            printf("Auxiliar %d roubou do auxiliar %d\n", i, type/100 -1);
+                            printf("Auxiliar %d roubou do auxiliar %d\n", i, indices[j]);
                             break;
                         }
                     }
@@ -156,17 +164,17 @@ int main()
                     {
                     case lento:
                         printf("Auxiliar %d - PID [%d]: executando lento\n", i, getpid());
-                        execl("lento", "lento", (char *)NULL);
+                        execl("lento", "lento", (char *)0);
                         // sleep(3);
                         break;
                     case normal:
                         printf("Auxiliar %d - PID [%d]: executando normal\n", i, getpid());
-                        execl("normal", "normal", (char *)NULL);
+                        execl("normal", "normal", (char *)0);
                         // sleep(2);
                         break;
                     case rapido:
                         printf("Auxiliar %d - PID [%d]: executando rapido\n", i, getpid());
-                        execl("rapido", "rapido", (char *)NULL);
+                        execl("rapido", "rapido", (char *)0);
                         // sleep(1);
                         break;
                     }
@@ -183,6 +191,8 @@ int main()
         wait(&status);
     }
 
+    // deleta a fila de mensagens
+    msgctl(msg_id, IPC_RMID, buf);
     gettimeofday(&end, 0);
     long seconds = end.tv_sec - begin.tv_sec;
     long microseconds = end.tv_usec - begin.tv_usec;

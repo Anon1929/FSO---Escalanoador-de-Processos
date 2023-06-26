@@ -24,31 +24,49 @@ typedef struct
     char msg[1];
 } mensagem;
 
-int main()
+long getType(int i)
+{
+    return (long)((i % 4) + 1) * 100l;
+}
+
+struct msqid_ds *buf;
+
+int main(int argc, char** argv)
 {
     int msg_id, pid, status, count = 0;
     FILE *file;
     char line[100];
 
+    if (argc != 2) 
+    {
+        printf("Número de argumentos incorreto\n");
+        exit(1);
+    }
+
     // Criar fila de mensagens
-    if (msg_id = msgget(0x1223, IPC_CREAT | 0666) == -1)
+    if ((msg_id = msgget(0x006401, IPC_CREAT | 0666)) == -1)
     {
         perror("msgget");
         exit(1);
     }
 
-    file = fopen("teste.txt", "r");
+    file = fopen(argv[1], "r");
     if (file == NULL)
     {
         printf("Failed to open the file.\n");
+        exit(1);
     }
 
     while (fgets(line, sizeof(line), file) != NULL)
     {
         int len = strlen(line);
         enum speed vel = 0;
+
         if (len > 0 && line[len - 1] == '\n')
+        {
             line[len - 1] = 0;
+        }
+
         if (strcmp(line, "normal") == 0)
         {
             vel = normal;
@@ -64,7 +82,7 @@ int main()
 
         // mandar mensagem
         mensagem msg;
-        long type = (long)((count % 4) + 1) * 100l;
+        long type = getType(count);
         msg.tipo = type;
         msg.msg[0] = vel;
         printf("Fila %ld recebe processo %s\n", msg.tipo, line);
@@ -88,7 +106,7 @@ int main()
             printf("Auxiliar %d criado\n", i);
             while (true)
             {
-                long type = (long)(i + 1) * 100l;
+                long type = getType(i);
                 mensagem msg;
                 msg.tipo = type;
                 if (msgrcv(msg_id, &msg, sizeof(msg.msg), type, IPC_NOWAIT) == -1)
@@ -132,6 +150,8 @@ int main()
         wait(&status);
     }
 
+    // deleta a fila de mensagens
+    msgctl(msg_id, IPC_RMID, buf);
     gettimeofday(&end, 0);
     long seconds = end.tv_sec - begin.tv_sec;
     long microseconds = end.tv_usec - begin.tv_usec;
