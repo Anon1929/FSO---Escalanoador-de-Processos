@@ -10,6 +10,7 @@
 #include <sys/time.h>
 #include <stdlib.h>
 #include <sys/msg.h>
+#include <ctype.h>
 
 enum speed
 {
@@ -34,6 +35,15 @@ long getType(int i)
 int randInt(int min, int max)
 {
     return min + rand() % (max - min + 1);
+}
+
+void strip(char* s) {
+    char* d = s;
+    do {
+        while (isspace(*d)) {
+            ++d;
+        }
+    } while (*s++ = *d++);
 }
 
 int main(int argc, char **argv)
@@ -70,6 +80,8 @@ int main(int argc, char **argv)
         {
             line[len - 1] = 0;
         }
+
+        strip(line);
 
         if (strcmp(line, "normal") == 0)
         {

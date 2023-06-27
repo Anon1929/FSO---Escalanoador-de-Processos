@@ -10,6 +10,7 @@
 #include <sys/time.h>
 #include <stdlib.h>
 #include <sys/msg.h>
+#include <ctype.h>
 
 enum speed
 {
@@ -24,12 +25,21 @@ typedef struct
     char msg[1];
 } mensagem;
 
+struct msqid_ds *buf;
+
 long getType(int i)
 {
     return (long)((i % 4) + 1) * 100l;
 }
 
-struct msqid_ds *buf;
+void strip(char* s) {
+    char* d = s;
+    do {
+        while (isspace(*d)) {
+            ++d;
+        }
+    } while (*s++ = *d++);
+}
 
 int main(int argc, char** argv)
 {
@@ -66,6 +76,8 @@ int main(int argc, char** argv)
         {
             line[len - 1] = 0;
         }
+
+        strip(line);
 
         if (strcmp(line, "normal") == 0)
         {
