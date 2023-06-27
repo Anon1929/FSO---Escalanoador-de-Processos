@@ -25,3 +25,18 @@ make clean
 
 # Executar modo roubo de trabalho
 ./main_roubo nomedoarquivo.txt
+
+# Exemplo de arquivo txt válido
+
+rapido
+rapido
+normal
+lento
+rapido
+rapido
+normal
+lento
+rapido
+rapido
+normal
+lento
