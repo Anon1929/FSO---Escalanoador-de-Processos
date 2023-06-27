@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <sys/msg.h>
 #include <ctype.h>
+#include <signal.h>
 
 enum speed
 {
@@ -41,9 +42,22 @@ void strip(char* s) {
     } while (*s++ = *d++);
 }
 
+static volatile int msg_id = 0;
+
+void intHandler(int arg)
+{
+    if (msgctl(msg_id, IPC_RMID, buf) != -1)
+    {
+        printf("\n");
+        perror("msgctl");
+        printf("Fila de mensagem %d destruída\n", msg_id);
+    }
+    exit(1);
+}
+
 int main(int argc, char** argv)
 {
-    int msg_id, pid, status, count = 0;
+    int pid, status, count = 0;
     FILE *file;
     char line[100];
 
@@ -59,6 +73,8 @@ int main(int argc, char** argv)
         perror("msgget");
         exit(1);
     }
+
+    signal(SIGINT, intHandler);
 
     file = fopen(argv[1], "r");
     if (file == NULL)

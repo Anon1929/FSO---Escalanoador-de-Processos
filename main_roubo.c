@@ -78,6 +78,7 @@ int main(int argc, char **argv)
         perror("msgget");
         exit(1);
     }
+
     signal(SIGINT, intHandler);
 
     file = fopen(argv[1], "r");
