@@ -29,14 +29,25 @@ make clean
 # Exemplo de arquivo txt válido
 
 rapido
+
 rapido
+
 normal
+
 lento
+
 rapido
+
 rapido
+
 normal
+
 lento
+
 rapido
+
 rapido
+
 normal
+
 lento
